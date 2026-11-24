@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: warranty_vault
+      POSTGRES_USER: vault
+      POSTGRES_PASSWORD: vault_dev_password
+    ports: ["5432:5432"]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vault -d warranty_vault"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  service-python-ocr:
+    build: ./service-python-ocr
+    ports: ["8000:8000"]
+    environment:
+      JAVA_SERVICE_URL: http://engine-java-core:8080
+    depends_on: [engine-java-core]
+  engine-java-core:
+    build: ./engine-java-core
+    ports: ["8080:8080"]
+  frontend-react:
+    build: ./frontend-react
+    ports: ["5173:5173"]
+    depends_on: [service-python-ocr]
+volumes:
+  postgres_data:
