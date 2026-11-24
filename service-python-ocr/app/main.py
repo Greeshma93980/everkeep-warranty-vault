@@ -5,7 +5,8 @@ from pydantic import BaseModel
 from .ocr_engine import scan_receipt
 app=FastAPI(title="Warranty Asset Vault OCR",version="1.0.0")
 app.add_middleware(CORSMiddleware,allow_origins=["*"],allow_methods=["*"],allow_headers=["*"],allow_credentials=False)
-JAVA_URL=os.getenv("JAVA_SERVICE_URL","http://localhost:8080").rstrip("/")
+JAVA_ENGINE_URL = os.getenv('JAVA_ENGINE_URL', 'http://localhost:8080').rstrip('/')
+PORT = int(os.getenv('PORT', '8000'))
 class EvaluationRequest(BaseModel):
  purchase_date:str
  purchase_price:float=0
@@ -23,5 +24,11 @@ async def scan(file:UploadFile=File(...)):
 async def evaluate(payload:EvaluationRequest):
  try:
   async with httpx.AsyncClient(timeout=15) as client:
-   response=await client.post(f"{JAVA_URL}/api/evaluate",json=payload.model_dump());response.raise_for_status();return response.json()
+   response=await client.post(f"{JAVA_ENGINE_URL}/api/evaluate",json=payload.model_dump());response.raise_for_status();return response.json()
  except httpx.HTTPError as exc:raise HTTPException(502,f"Core Java service unavailable: {exc}") from exc
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=PORT)

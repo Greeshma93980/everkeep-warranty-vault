@@ -18,7 +18,7 @@ services:
     build: ./service-python-ocr
     ports: ["8000:8000"]
     environment:
-      JAVA_SERVICE_URL: http://engine-java-core:8080
+      JAVA_ENGINE_URL: http://engine-java-core:8080
     depends_on: [engine-java-core]
   engine-java-core:
     build: ./engine-java-core

@@ -19,6 +19,9 @@ import {
   X,
 } from 'lucide-react';
 
+const PYTHON_API_BASE_URL = import.meta.env.VITE_PYTHON_API_URL || 'http://localhost:8000';
+const JAVA_API_BASE_URL = import.meta.env.VITE_JAVA_API_URL || 'http://localhost:8080';
+
 const demo = [
   {
     name: 'MacBook Pro 14-inch',
@@ -106,7 +109,10 @@ export default function App() {
     const data = new FormData();
     data.append('file', file);
     try {
-      const response = await fetch('/api/v1/receipts/scan', { method: 'POST', body: data });
+      const response = await fetch(`${PYTHON_API_BASE_URL}/api/v1/receipts/scan`, {
+        method: 'POST',
+        body: data,
+      });
       if (!response.ok) throw Error('Receipt scan failed');
       const result = await response.json();
       const fields = result.fields;
@@ -191,7 +197,7 @@ export default function App() {
           reminder_tier: reminderTier,
         };
       });
-      const response = await fetch(`http://${window.location.hostname}:8080/api/dossier`, {
+      const response = await fetch(`${JAVA_API_BASE_URL}/api/dossier`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

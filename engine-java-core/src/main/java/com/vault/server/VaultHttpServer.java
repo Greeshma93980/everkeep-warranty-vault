@@ -24,7 +24,8 @@ public final class VaultHttpServer {
     private VaultHttpServer() {}
 
     public static void main(String[] args) throws IOException {
-        int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "8080"));
+        String configuredPort = System.getenv("PORT");
+        int port = Integer.parseInt(configuredPort == null ? "8080" : configuredPort);
         var scheduler = new ExpiryScheduler();
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
         server.createContext("/health", exchange ->
